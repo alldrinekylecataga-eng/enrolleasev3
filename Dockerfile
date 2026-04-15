@@ -8,3 +8,5 @@ COPY . /var/www/html/
 
 # Fix permissions
 RUN chown -R www-data:www-data /var/www/html
+
+RUN docker-php-ext-install pdo pdo_mysql mysqli
