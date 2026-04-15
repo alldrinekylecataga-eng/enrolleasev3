@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>EnrollEase — Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f0f2f5;--surface:#fff;--surface2:#f7f8fa;--border:#dde1e7;--border2:#c8cdd6;--text:#0f1217;--text2:#3d4451;--muted:#6b7280;--subtle:#9ca3af;--blue:#1d4ed8;--blue-lt:#dbeafe;--blue-md:#3b82f6;--green:#15803d;--green-lt:#dcfce7;--green-md:#22c55e;--red:#b91c1c;--red-lt:#fee2e2;--red-md:#ef4444;--amber:#b45309;--amber-lt:#fef3c7;--amber-md:#f59e0b;--navy:#1e2a3b;--navy2:#253347;--navy3:#2e3f57}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-size:13px;line-height:1.5}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:220px;flex-shrink:0;background:var(--navy);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;box-shadow:2px 0 8px rgba(0,0,0,.12)}
+.sidebar-top{padding:22px 18px 18px;border-bottom:1px solid rgba(255,255,255,.08)}
+.logo-wrap{display:flex;align-items:center;gap:10px}
+.logo-icon{width:32px;height:32px;background:var(--blue-md);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#fff;flex-shrink:0}
+.logo-text{font-size:15px;font-weight:600;color:#fff}
+.logo-sub{font-size:10px;color:rgba(255,255,255,.35);margin-top:1px}
+.nav{padding:10px;flex:1;overflow-y:auto}
+.nav-group{font-size:9.5px;font-weight:600;color:rgba(255,255,255,.28);text-transform:uppercase;letter-spacing:.1em;padding:14px 8px 5px}
+.nav-item{display:flex;align-items:center;gap:9px;padding:7px 8px;border-radius:6px;font-size:12.5px;color:rgba(255,255,255,.52);cursor:pointer;text-decoration:none;transition:background .12s,color .12s;user-select:none}
+.nav-item:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.82)}
+.nav-item.active{background:rgba(59,130,246,.22);color:#fff;font-weight:500}
+.nav-dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.18);flex-shrink:0;transition:background .12s}
+.nav-item.active .nav-dot{background:var(--blue-md)}
+.sidebar-foot{padding:14px 18px;border-top:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:space-between}
+.user-info{font-size:11px;color:rgba(255,255,255,.5)}
+.logout-btn{font-size:11px;color:rgba(255,255,255,.4);cursor:pointer;background:none;border:none;font-family:'Inter',sans-serif}
+.logout-btn:hover{color:#fff}
+.main{margin-left:220px;flex:1;display:flex;flex-direction:column}
+.header{padding:0 28px;height:54px;border-bottom:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.header-left{display:flex;align-items:center;gap:10px}
+.header-left h1{font-size:14px;font-weight:600}
+.hdiv{width:1px;height:20px;background:var(--border)}
+.header-left p{font-size:11px;color:var(--muted)}
+.active-pill{font-size:11px;color:var(--green);background:var(--green-lt);border:1px solid #bbf7d0;border-radius:20px;padding:2px 10px;font-weight:500}
+.content{padding:24px 28px;flex:1}
+.page{display:none}.page.active{display:block}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.stat-label{font-size:11px;color:var(--muted);font-weight:500;margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em}
+.stat-val{font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:500}
+.stat-sub{font-size:11px;color:var(--subtle);margin-top:4px}
+.stat.blue{border-left:3px solid var(--blue-md)}.stat.blue .stat-val{color:var(--blue)}
+.stat.green{border-left:3px solid var(--green-md)}.stat.green .stat-val{color:var(--green)}
+.stat.red{border-left:3px solid var(--red-md)}.stat.red .stat-val{color:var(--red)}
+.stat.amber{border-left:3px solid var(--amber-md)}.stat.amber .stat-val{color:var(--amber)}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.card-head{padding:13px 18px;background:var(--surface2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px}
+.card-title{font-size:12.5px;font-weight:600;flex:1}
+.card-actions{display:flex;gap:8px;align-items:center}
+.search{background:var(--surface);border:1px solid var(--border2);border-radius:6px;padding:5px 10px;font-size:12px;color:var(--text);outline:none;font-family:'Inter',sans-serif;width:180px;transition:border .15s}
+.search:focus{border-color:var(--blue-md);box-shadow:0 0 0 3px rgba(59,130,246,.1)}
+.search::placeholder{color:var(--subtle)}
+.btn-primary{background:var(--navy);color:#fff;border:none;border-radius:6px;padding:6px 14px;font-size:12px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap;transition:background .15s}
+.btn-primary:hover{background:var(--navy2)}
+.btn-sm{padding:4px 10px;font-size:11px;border-radius:5px;border:none;cursor:pointer;font-family:'Inter',sans-serif;font-weight:500;transition:background .15s}
+.btn-edit{background:var(--blue-lt);color:var(--blue)}
+.btn-edit:hover{background:#bfdbfe}
+.btn-del{background:var(--red-lt);color:var(--red)}
+.btn-del:hover{background:#fecaca}
+.btn-pay{background:var(--green-lt);color:var(--green)}
+.btn-pay:hover{background:#bbf7d0}
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{padding:9px 14px;text-align:left;font-size:10.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--border);background:var(--surface2);white-space:nowrap}
+.tbl td{padding:9px 14px;border-bottom:1px solid #eef0f3;color:var(--text2);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tbody tr:hover td{background:#f5f7fb}
+.mono{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--text)}
+.tag{display:inline-block;font-size:10.5px;font-weight:500;padding:2px 8px;border-radius:4px;border:1px solid transparent;white-space:nowrap}
+.tag-blue{color:var(--blue);background:var(--blue-lt);border-color:#bfdbfe}
+.tag-green{color:var(--green);background:var(--green-lt);border-color:#bbf7d0}
+.tag-red{color:var(--red);background:var(--red-lt);border-color:#fecaca}
+.tag-amber{color:var(--amber);background:var(--amber-lt);border-color:#fde68a}
+.tag-gray{color:var(--muted);background:#f1f3f5;border-color:var(--border)}
+.tag-navy{color:#fff;background:var(--navy3);border-color:var(--navy3)}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.empty{padding:32px;text-align:center;color:var(--subtle);font-size:12px}
+.lc{color:var(--subtle);text-align:center;padding:24px;font-size:12px}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;display:none;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border-radius:12px;padding:24px;width:480px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.modal h3{font-size:15px;font-weight:600;margin-bottom:4px}
+.modal p{font-size:12px;color:var(--muted);margin-bottom:20px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12px;font-weight:500;margin-bottom:4px}
+.field input,.field select{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;font-family:'Inter',sans-serif;color:var(--text);outline:none}
+.field input:focus,.field select:focus{border-color:var(--blue-md);box-shadow:0 0 0 3px rgba(59,130,246,.1)}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:20px}
+.btn-cancel{background:var(--bg);color:var(--muted);border:1px solid var(--border);border-radius:6px;padding:7px 16px;font-size:12px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif}
+.msg{padding:10px 12px;border-radius:6px;font-size:12px;margin-bottom:14px;display:none}
+.msg.success{background:var(--green-lt);color:var(--green);border:1px solid #bbf7d0}
+.msg.error{background:var(--red-lt);color:var(--red);border:1px solid #fecaca}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar">
+  <div class="sidebar-top">
+    <div class="logo-wrap">
+      <div class="logo-icon">E</div>
+      <div><div class="logo-text">EnrollEase</div><div class="logo-sub">Admin Portal</div></div>
+    </div>
+  </div>
+  <nav class="nav">
+    <div class="nav-group">Overview</div>
+    <a class="nav-item active" href="#" onclick="go('dashboard',this)"><span class="nav-dot"></span>Dashboard</a>
+    <div class="nav-group">Enrollment</div>
+    <a class="nav-item" href="#" onclick="go('students',this)"><span class="nav-dot"></span>Students</a>
+    <a class="nav-item" href="#" onclick="go('sections',this)"><span class="nav-dot"></span>Sections</a>
+    <a class="nav-item" href="#" onclick="go('enrollments',this)"><span class="nav-dot"></span>Enrollments</a>
+    <div class="nav-group">Payments</div>
+    <a class="nav-item" href="#" onclick="go('assessments',this)"><span class="nav-dot"></span>Assessments</a>
+    <a class="nav-item" href="#" onclick="go('payments',this)"><span class="nav-dot"></span>Payments</a>
+    <a class="nav-item" href="#" onclick="go('scholarships',this)"><span class="nav-dot"></span>Scholarships</a>
+    <div class="nav-group">System</div>
+    <a class="nav-item" href="#" onclick="go('users',this)"><span class="nav-dot"></span>Users</a>
+  </nav>
+  <div class="sidebar-foot">
+    <span class="user-info" id="admin-name">Admin</span>
+    <button class="logout-btn" onclick="logout()">Sign out</button>
+  </div>
+</aside>
+
+<div class="main">
+  <header class="header">
+    <div class="header-left">
+      <h1 id="hdr-title">Dashboard</h1>
+      <div class="hdiv"></div>
+      <p id="hdr-sub">Admin overview</p>
+    </div>
+    <span class="active-pill">● Active Semester</span>
+  </header>
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div class="stats">
+        <div class="stat blue"><div class="stat-label">Enrolled</div><div class="stat-val" id="s-e">—</div><div class="stat-sub">Students this sem</div></div>
+        <div class="stat amber"><div class="stat-label">Sections</div><div class="stat-val" id="s-s">—</div><div class="stat-sub">Active sections</div></div>
+        <div class="stat green"><div class="stat-label">Collected</div><div class="stat-val" id="s-c">—</div><div class="stat-sub">Total payments</div></div>
+        <div class="stat red"><div class="stat-label">Outstanding</div><div class="stat-val" id="s-o">—</div><div class="stat-sub">Balance due</div></div>
+      </div>
+      <div class="two-col">
+        <div class="card">
+          <div class="card-head"><span class="card-title">Enrollment by college</span></div>
+          <table class="tbl"><thead><tr><th>College</th><th>Students</th></tr></thead>
+          <tbody id="d-col"><tr><td colspan="2" class="lc">Loading…</td></tr></tbody></table>
+        </div>
+        <div class="card">
+          <div class="card-head"><span class="card-title">Recent enrollments</span></div>
+          <table class="tbl"><thead><tr><th>Student</th><th>Date</th><th>Balance</th></tr></thead>
+          <tbody id="d-rec"><tr><td colspan="3" class="lc">Loading…</td></tr></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- STUDENTS -->
+    <div class="page" id="page-students">
+      <div class="card">
+        <div class="card-head">
+          <span class="card-title">Students</span>
+          <div class="card-actions">
+            <input class="search" placeholder="Search…" oninput="filt('tb-stu',this.value)">
+            <button class="btn-primary" onclick="openModal('modal-student')">+ Add Student</button>
+          </div>
+        </div>
+        <table class="tbl"><thead><tr><th>Student No.</th><th>Name</th><th>College</th><th>Course</th><th>Year</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="tb-stu"><tr><td colspan="7" class="lc">Loading…</td></tr></tbody></table>
+      </div>
+    </div>
+
+    <!-- SECTIONS -->
+    <div class="page" id="page-sections">
+      <div class="card">
+        <div class="card-head">
+          <span class="card-title">Class Sections</span>
+          <div class="card-actions">
+            <input class="search" placeholder="Search…" oninput="filt('tb-sec',this.value)">
+            <button class="btn-primary" onclick="openModal('modal-section')">+ Add Section</button>
+          </div>
+        </div>
+        <table class="tbl"><thead><tr><th>Code</th><th>Subject</th><th>Faculty</th><th>Schedule</th><th>Room</th><th>Capacity</th><th>Active</th><th>Actions</th></tr></thead>
+        <tbody id="tb-sec"><tr><td colspan="8" class="lc">Loading…</td></tr></tbody></table>
+      </div>
+    </div>
+
+    <!-- ENROLLMENTS -->
+    <div class="page" id="page-enrollments">
+      <div class="card">
+        <div class="card-head">
+          <span class="card-title">Enrollments</span>
+          <input class="search" placeholder="Search…" oninput="filt('tb-enr',this.value)">
+        </div>
+        <table class="tbl"><thead><tr><th>Student No.</th><th>Name</th><th>College</th><th>Course</th><th>Date</th><th>Units</th><th>Status</th><th>Subjects</th></tr></thead>
+        <tbody id="tb-enr"><tr><td colspan="8" class="lc">Loading…</td></tr></tbody></table>
+      </div>
+    </div>
+
+    <!-- ASSESSMENTS -->
+    <div class="page" id="page-assessments">
+      <div class="card">
+        <div class="card-head">
+          <span class="card-title">Tuition Assessments</span>
+          <input class="search" placeholder="Search…" oninput="filt('tb-ass',this.value)">
+        </div>
+        <table class="tbl"><thead><tr><th>Student No.</th><th>Name</th><th>Total Due</th><th>Scholarship</th><th>Paid</th><th>Balance</th><th>Scheme</th><th>Actions</th></tr></thead>
+        <tbody id="tb-ass"><tr><td colspan="8" class="lc">Loading…</td></tr></tbody></table>
+      </div>
+    </div>
+
+    <!-- PAYMENTS -->
+    <div class="page" id="page-payments">
+      <div class="card">
+        <div class="card-head">
+          <span class="card-title">Payment Transactions</span>
+          <input class="search" placeholder="Search…" oninput="filt('tb-pay',this.value)">
+        </div>
+        <table class="tbl"><thead><tr><th>Receipt No.</th><th>Student No.</th><th>Name</th><th>Date</th><th>Amount</th><th>Mode</th><th>Actions</th></tr></thead>
+        <tbody id="tb-pay"><tr><td colspan="7" class="lc">Loading…</td></tr></tbody></table>
+      </div>
+    </div>
+
+    <!-- SCHOLARSHIPS -->
+    <div class="page" id="page-scholarships">
+      <div class="two-col">
+        <div class="card">
+          <div class="card-head">
+            <span class="card-title">Scholarship Types</span>
+            <button class="btn-primary" onclick="openModal('modal-scholarship')">+ Add</button>
+          </div>
+          <table class="tbl"><thead><tr><th>Name</th><th>Type</th><th>Max Amount</th><th>Actions</th></tr></thead>
+          <tbody id="tb-sch"><tr><td colspan="4" class="lc">Loading…</td></tr></tbody></table>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <span class="card-title">Student Scholarships</span>
+            <button class="btn-primary" onclick="openModal('modal-award')">+ Award</button>
+          </div>
+          <table class="tbl"><thead><tr><th>Student</th><th>Scholarship</th><th>Amount</th><th>Status</th></tr></thead>
+          <tbody id="tb-ss"><tr><td colspan="4" class="lc">Loading…</td></tr></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- USERS -->
+    <div class="page" id="page-users">
+      <div class="card">
+        <div class="card-head">
+          <span class="card-title">System Users</span>
+          <button class="btn-primary" onclick="openModal('modal-user')">+ Add User</button>
+        </div>
+        <table class="tbl"><thead><tr><th>Username</th><th>Role</th><th>Linked Student</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="tb-usr"><tr><td colspan="5" class="lc">Loading…</td></tr></tbody></table>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="modal-student">
+  <div class="modal">
+    <h3 id="stu-modal-title">Add Student</h3><p>Fill in the student details below</p>
+    <div class="msg" id="stu-msg"></div>
+    <input type="hidden" id="stu-id">
+    <div class="field"><label>Student No.</label><input id="stu-no" placeholder="e.g. 2024-0001"></div>
+    <div class="two-col">
+      <div class="field"><label>Last Name</label><input id="stu-ln" placeholder="dela Cruz"></div>
+      <div class="field"><label>First Name</label><input id="stu-fn" placeholder="Juan"></div>
+    </div>
+    <div class="field"><label>Middle Name</label><input id="stu-mn" placeholder="Santos (optional)"></div>
+    <div class="field"><label>Email</label><input id="stu-em" type="email" placeholder="juan@example.com"></div>
+    <div class="field"><label>Contact No.</label><input id="stu-cn" placeholder="09171234567"></div>
+    <div class="two-col">
+      <div class="field"><label>College</label><select id="stu-col"><option value="">Select college</option></select></div>
+      <div class="field"><label>Course</label><select id="stu-crs"><option value="">Select course</option></select></div>
+    </div>
+    <div class="field"><label>Year Level</label><select id="stu-yr"><option value="1">1st Year</option><option value="2">2nd Year</option><option value="3">3rd Year</option><option value="4">4th Year</option></select></div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('modal-student')">Cancel</button>
+      <button class="btn-primary" onclick="saveStudent()">Save Student</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-section">
+  <div class="modal">
+    <h3>Add Section</h3><p>Create a new class section for the active semester</p>
+    <div class="msg" id="sec-msg"></div>
+    <div class="field"><label>Section Code</label><input id="sec-code" placeholder="e.g. CC101-C"></div>
+    <div class="field"><label>Subject</label><select id="sec-sub"><option value="">Select subject</option></select></div>
+    <div class="field"><label>Faculty Name</label><input id="sec-fac" placeholder="Prof. Santos"></div>
+    <div class="field"><label>Schedule</label><input id="sec-sch" placeholder="MWF 7-8AM"></div>
+    <div class="field"><label>Room</label><input id="sec-room" placeholder="Room 101"></div>
+    <div class="field"><label>Max Capacity</label><input id="sec-cap" type="number" value="40"></div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('modal-section')">Cancel</button>
+      <button class="btn-primary" onclick="saveSection()">Save Section</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-payment">
+  <div class="modal">
+    <h3>Record Payment</h3><p id="pay-modal-sub">Post a payment for this student</p>
+    <div class="msg" id="pay-msg"></div>
+    <input type="hidden" id="pay-aid">
+    <div class="field"><label>Amount</label><input id="pay-amt" type="number" placeholder="0.00"></div>
+    <div class="field"><label>Payment Mode</label>
+      <select id="pay-mode">
+        <option value="Cash">Cash</option>
+        <option value="GCash">GCash</option>
+        <option value="Bank Transfer">Bank Transfer</option>
+        <option value="Maya">Maya</option>
+      </select>
+    </div>
+    <div class="field"><label>Receipt Number</label><input id="pay-rcpt" placeholder="Auto-generated if blank"></div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('modal-payment')">Cancel</button>
+      <button class="btn-primary" onclick="savePayment()">Post Payment</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-scholarship">
+  <div class="modal">
+    <h3 id="sch-modal-title">Add Scholarship</h3><p>Define a scholarship type</p>
+    <div class="msg" id="sch-msg"></div>
+    <input type="hidden" id="sch-id">
+    <div class="field"><label>Scholarship Name</label><input id="sch-nm" placeholder="Academic Excellence"></div>
+    <div class="field"><label>Type</label><select id="sch-tp"><option value="Merit-based">Merit-based</option><option value="Need-based">Need-based</option><option value="Special">Special</option></select></div>
+    <div class="field"><label>Max Amount (₱)</label><input id="sch-amt" type="number" placeholder="5000"></div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('modal-scholarship')">Cancel</button>
+      <button class="btn-primary" onclick="saveScholarship()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-award">
+  <div class="modal">
+    <h3>Award Scholarship</h3><p>Grant a scholarship to a student this semester</p>
+    <div class="msg" id="aw-msg"></div>
+    <div class="field"><label>Student</label><select id="aw-stu"><option value="">Select student</option></select></div>
+    <div class="field"><label>Scholarship</label><select id="aw-sch"><option value="">Select scholarship</option></select></div>
+    <div class="field"><label>Amount Awarded (₱)</label><input id="aw-amt" type="number" placeholder="0"></div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('modal-award')">Cancel</button>
+      <button class="btn-primary" onclick="saveAward()">Award</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-user">
+  <div class="modal">
+    <h3>Add User Account</h3><p>Create a login account</p>
+    <div class="msg" id="usr-msg"></div>
+    <div class="field"><label>Username</label><input id="usr-un" placeholder="e.g. 2024-0001"></div>
+    <div class="field"><label>Password</label><input id="usr-pw" type="password" placeholder="Set initial password"></div>
+    <div class="field"><label>Role</label><select id="usr-role"><option value="student">Student</option><option value="admin">Admin</option></select></div>
+    <div class="field"><label>Link to Student (optional)</label><select id="usr-stu"><option value="">None (admin account)</option></select></div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('modal-user')">Cancel</button>
+      <button class="btn-primary" onclick="saveUser()">Create User</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-subjects">
+  <div class="modal">
+    <h3 id="subj-title">Enrolled Subjects</h3><p id="subj-sub"></p>
+    <table class="tbl"><thead><tr><th>Code</th><th>Subject</th><th>Units</th><th>Section</th><th>Faculty</th><th>Schedule</th></tr></thead>
+    <tbody id="tb-subj"></tbody></table>
+    <div class="modal-btns"><button class="btn-cancel" onclick="closeModal('modal-subjects')">Close</button></div>
+  </div>
+</div>
+
+<script>
+const API='/api/admin';
+let token=localStorage.getItem('token');
+let colleges=[],courses=[],subjects=[],scholarships=[];
+
+function hdr(){return{'Authorization':'Bearer '+token,'Content-Type':'application/json'}}
+async function api(url,method='GET',body=null){
+  const r=await fetch(url,{method,headers:hdr(),body:body?JSON.stringify(body):null});
+  if(r.status===401){logout();return null}
+  return r.json();
+}
+
+function logout(){localStorage.clear();window.location.href='/'}
+function peso(n){return'₱'+Number(n||0).toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function fmtDate(d){return d?new Date(d).toLocaleDateString('en-PH',{year:'numeric',month:'short',day:'numeric'}):'—'}
+function filt(id,q){document.querySelectorAll('#'+id+' tr').forEach(r=>{r.style.display=r.textContent.toLowerCase().includes(q.toLowerCase())?'':'none'})}
+function openModal(id){document.getElementById(id).classList.add('open')}
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+function showMsg(id,msg,type){const e=document.getElementById(id);e.textContent=msg;e.className='msg '+type;e.style.display='block';setTimeout(()=>e.style.display='none',3500)}
+
+const TITLES={dashboard:['Dashboard','Admin overview'],students:['Students','Student registry — create, read, update, deactivate'],sections:['Sections','Class sections management'],enrollments:['Enrollments','Current semester enrollment records'],assessments:['Tuition Assessments','Fee assessment and balance monitoring'],payments:['Payments','Payment transactions'],scholarships:['Scholarships','Scholarship management and awards'],users:['Users','User account management']};
+function go(name,el){
+  event.preventDefault();
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  el.classList.add('active');
+  const[t,s]=TITLES[name]||[name,''];
+  document.getElementById('hdr-title').textContent=t;
+  document.getElementById('hdr-sub').textContent=s;
+}
+
+// ── DASHBOARD ──
+async function loadDashboard(){
+  const d=await api(API+'/dashboard');
+  if(!d)return;
+  document.getElementById('s-e').textContent=d.enrolled;
+  document.getElementById('s-s').textContent=d.sections;
+  document.getElementById('s-c').textContent=peso(d.collected);
+  document.getElementById('s-o').textContent=peso(d.outstanding);
+  document.getElementById('d-col').innerHTML=d.by_college.map(r=>`<tr><td><span class="tag tag-navy">${r.COLLEGE_CODE}</span> ${r.COLLEGE_NAME}</td><td class="mono">${r.TOTAL}</td></tr>`).join('');
+  document.getElementById('d-rec').innerHTML=d.recent_enrollments.map(r=>`<tr><td class="mono">${r.STUDENT_NO}</td><td>${fmtDate(r.ENROLLMENT_DATE)}</td><td class="mono" style="color:${r.BALANCE_DUE>0?'var(--red)':'var(--subtle)'}">${peso(r.BALANCE_DUE)}</td></tr>`).join('');
+}
+
+// ── STUDENTS ──
+async function loadStudents(){
+  const d=await api(API+'/students');
+  if(!d)return;
+  document.getElementById('tb-stu').innerHTML=d.map(r=>`<tr>
+    <td class="mono">${r.STUDENT_NO}</td><td style="font-weight:500">${r.LASTNAME}, ${r.FIRSTNAME}</td>
+    <td><span class="tag tag-navy">${r.COLLEGE_CODE}</span></td><td class="mono">${r.COURSE_CODE}</td>
+    <td class="mono">${r.YEAR_LEVEL}</td>
+    <td><span class="tag ${r.STATUS==='Active'?'tag-green':'tag-red'}">${r.STATUS}</span></td>
+    <td><button class="btn-sm btn-edit" onclick="editStudent(${r.STUDENT_ID})">Edit</button> <button class="btn-sm btn-del" onclick="delStudent(${r.STUDENT_ID})">Deactivate</button></td>
+  </tr>`).join('')||'<tr><td colspan="7" class="lc">No students found</td></tr>';
+}
+
+async function saveStudent(){
+  const id=document.getElementById('stu-id').value;
+  const body={
+    student_no:document.getElementById('stu-no').value,
+    lastname:document.getElementById('stu-ln').value,
+    firstname:document.getElementById('stu-fn').value,
+    middlename:document.getElementById('stu-mn').value,
+    email:document.getElementById('stu-em').value,
+    contact_no:document.getElementById('stu-cn').value,
+    college_id:document.getElementById('stu-col').value,
+    course_id:document.getElementById('stu-crs').value,
+    year_level:document.getElementById('stu-yr').value,
+    status:'Active'
+  };
+  const r=await api(API+(id?'/students/'+id:'/students'),id?'PUT':'POST',body);
+  if(r?.message){showMsg('stu-msg',r.message,'success');loadStudents();}
+  else showMsg('stu-msg',r?.error||'Error','error');
+}
+
+async function editStudent(id){
+  const d=await api(API+'/students/'+id);
+  if(!d)return;
+  document.getElementById('stu-id').value=id;
+  document.getElementById('stu-modal-title').textContent='Edit Student';
+  document.getElementById('stu-no').value=d.STUDENT_NO;
+  document.getElementById('stu-ln').value=d.LASTNAME;
+  document.getElementById('stu-fn').value=d.FIRSTNAME;
+  document.getElementById('stu-mn').value=d.MIDDLENAME||'';
+  document.getElementById('stu-em').value=d.EMAIL;
+  document.getElementById('stu-cn').value=d.CONTACT_NO||'';
+  document.getElementById('stu-yr').value=d.YEAR_LEVEL;
+  openModal('modal-student');
+}
+
+async function delStudent(id){
+  if(!confirm('Deactivate this student?'))return;
+  const r=await api(API+'/students/'+id,'DELETE');
+  if(r?.message)loadStudents();
+}
+
+// ── SECTIONS ──
+async function loadSections(){
+  const d=await api(API+'/sections');
+  if(!d)return;
+  document.getElementById('tb-sec').innerHTML=d.map(r=>`<tr>
+    <td class="mono">${r.SECTION_CODE}</td><td>${r.SUBJECT_NAME} <span style="color:var(--subtle);font-size:11px">(${r.SUBJECT_CODE})</span></td>
+    <td>${r.FACULTY_NAME||'—'}</td><td>${r.SCHEDULE||'—'}</td><td>${r.ROOM||'—'}</td>
+    <td class="mono">${r.CURRENT_COUNT}/${r.MAX_CAPACITY}</td>
+    <td><span class="tag ${r.IS_ACTIVE==='Y'?'tag-green':'tag-red'}">${r.IS_ACTIVE==='Y'?'Active':'Inactive'}</span></td>
+    <td><button class="btn-sm btn-del" onclick="delSection(${r.SECTION_ID})">Deactivate</button></td>
+  </tr>`).join('')||'<tr><td colspan="8" class="lc">No sections</td></tr>';
+}
+
+async function saveSection(){
+  const body={section_code:document.getElementById('sec-code').value,subject_id:document.getElementById('sec-sub').value,faculty_name:document.getElementById('sec-fac').value,schedule:document.getElementById('sec-sch').value,room:document.getElementById('sec-room').value,max_capacity:document.getElementById('sec-cap').value};
+  const r=await api(API+'/sections','POST',body);
+  if(r?.message){showMsg('sec-msg',r.message,'success');loadSections();}
+  else showMsg('sec-msg',r?.error||'Error','error');
+}
+
+async function delSection(id){
+  if(!confirm('Deactivate this section?'))return;
+  await api(API+'/sections/'+id,'DELETE');
+  loadSections();
+}
+
+// ── ENROLLMENTS ──
+async function loadEnrollments(){
+  const d=await api(API+'/enrollments');
+  if(!d)return;
+  document.getElementById('tb-enr').innerHTML=d.map(r=>`<tr>
+    <td class="mono">${r.STUDENT_NO}</td><td style="font-weight:500">${r.FULL_NAME}</td>
+    <td><span class="tag tag-navy">${r.COLLEGE_CODE}</span></td><td class="mono">${r.COURSE_CODE}</td>
+    <td class="mono">${fmtDate(r.ENROLLMENT_DATE)}</td><td class="mono">${r.TOTAL_UNITS}</td>
+    <td><span class="tag tag-green">${r.STATUS}</span></td>
+    <td><button class="btn-sm btn-edit" onclick="viewSubjects(${r.ENROLLMENT_ID},'${r.FULL_NAME}')">View</button></td>
+  </tr>`).join('')||'<tr><td colspan="8" class="lc">No enrollments</td></tr>';
+}
+
+async function viewSubjects(id,name){
+  const d=await api(API+'/enrollments/'+id+'/subjects');
+  if(!d)return;
+  document.getElementById('subj-title').textContent='Enrolled Subjects';
+  document.getElementById('subj-sub').textContent=name;
+  document.getElementById('tb-subj').innerHTML=d.map(r=>`<tr><td class="mono">${r.SUBJECT_CODE}</td><td>${r.SUBJECT_NAME}</td><td class="mono">${r.UNITS}</td><td class="mono">${r.SECTION_CODE}</td><td>${r.FACULTY_NAME||'—'}</td><td>${r.SCHEDULE||'—'}</td></tr>`).join('')||'<tr><td colspan="6" class="lc">No subjects enlisted</td></tr>';
+  openModal('modal-subjects');
+}
+
+// ── ASSESSMENTS ──
+async function loadAssessments(){
+  const d=await api(API+'/assessments');
+  if(!d)return;
+  document.getElementById('tb-ass').innerHTML=d.map(r=>`<tr>
+    <td class="mono">${r.STUDENT_NO}</td><td style="font-weight:500">${r.FULL_NAME}</td>
+    <td class="mono">${peso(r.TOTAL_AMOUNT_DUE)}</td>
+    <td class="mono" style="color:var(--green)">${peso(r.SCHOLARSHIP_DEDUCTION)}</td>
+    <td class="mono">${peso(r.TOTAL_PAID)}</td>
+    <td class="mono" style="color:${r.BALANCE_DUE>0?'var(--red)':'var(--subtle)'};font-weight:${r.BALANCE_DUE>0?600:400}">${peso(r.BALANCE_DUE)}</td>
+    <td><span class="tag tag-gray">${r.PAYMENT_SCHEME}</span></td>
+    <td><button class="btn-sm btn-pay" onclick="openPayModal(${r.ASSESSMENT_ID},'${r.FULL_NAME}',${r.BALANCE_DUE})">+ Pay</button></td>
+  </tr>`).join('')||'<tr><td colspan="8" class="lc">No assessments</td></tr>';
+}
+
+function openPayModal(aid,name,bal){
+  document.getElementById('pay-aid').value=aid;
+  document.getElementById('pay-modal-sub').textContent=name+' — Balance: '+peso(bal);
+  document.getElementById('pay-rcpt').value='OR-'+Date.now();
+  openModal('modal-payment');
+}
+
+async function savePayment(){
+  const body={assessment_id:document.getElementById('pay-aid').value,amount:document.getElementById('pay-amt').value,payment_mode:document.getElementById('pay-mode').value,receipt_number:document.getElementById('pay-rcpt').value||'OR-'+Date.now()};
+  const r=await api(API+'/payments','POST',body);
+  if(r?.message){showMsg('pay-msg',r.message,'success');loadAssessments();loadPayments();}
+  else showMsg('pay-msg',r?.error||'Error','error');
+}
+
+// ── PAYMENTS ──
+async function loadPayments(){
+  const d=await api(API+'/payments');
+  if(!d)return;
+  document.getElementById('tb-pay').innerHTML=d.map(r=>`<tr>
+    <td class="mono">${r.RECEIPT_NUMBER}</td><td class="mono">${r.STUDENT_NO}</td>
+    <td style="font-weight:500">${r.STUDENT_NAME}</td><td class="mono">${fmtDate(r.PAYMENT_DATE)}</td>
+    <td class="mono" style="color:var(--green);font-weight:600">${peso(r.AMOUNT)}</td>
+    <td><span class="tag tag-blue">${r.PAYMENT_MODE}</span></td>
+    <td><button class="btn-sm btn-del" onclick="delPayment(${r.PAYMENT_ID})">Delete</button></td>
+  </tr>`).join('')||'<tr><td colspan="7" class="lc">No payments</td></tr>';
+}
+
+async function delPayment(id){
+  if(!confirm('Delete this payment record?'))return;
+  await api(API+'/payments/'+id,'DELETE');
+  loadPayments();loadAssessments();
+}
+
+// ── SCHOLARSHIPS ──
+async function loadScholarships(){
+  const d=await api(API+'/scholarships');
+  if(!d)return;
+  scholarships=d;
+  document.getElementById('tb-sch').innerHTML=d.map(r=>`<tr>
+    <td style="font-weight:500">${r.SCHOLARSHIP_NAME}</td>
+    <td><span class="tag tag-blue">${r.SCHOLARSHIP_TYPE}</span></td>
+    <td class="mono">${peso(r.MAX_AMOUNT)}</td>
+    <td>
+      <button class="btn-sm btn-edit" onclick="editScholarship(${r.SCHOLARSHIP_ID},'${r.SCHOLARSHIP_NAME}','${r.SCHOLARSHIP_TYPE}',${r.MAX_AMOUNT})">Edit</button>
+      <button class="btn-sm btn-del" onclick="delScholarship(${r.SCHOLARSHIP_ID})">Del</button>
+    </td>
+  </tr>`).join('')||'<tr><td colspan="4" class="lc">No scholarships</td></tr>';
+  // Refresh award modal options
+  const sel=document.getElementById('aw-sch');
+  sel.innerHTML='<option value="">Select scholarship</option>'+d.map(s=>`<option value="${s.SCHOLARSHIP_ID}">${s.SCHOLARSHIP_NAME}</option>`).join('');
+}
+
+async function loadStudentScholarships(){
+  const d=await api(API+'/student-scholarships');
+  if(!d)return;
+  document.getElementById('tb-ss').innerHTML=d.map(r=>`<tr>
+    <td class="mono">${r.STUDENT_NO} ${r.STUDENT_NAME}</td>
+    <td>${r.SCHOLARSHIP_NAME}</td>
+    <td class="mono" style="color:var(--amber);font-weight:600">${peso(r.AMOUNT_AWARDED)}</td>
+    <td><span class="tag tag-green">${r.STATUS}</span></td>
+  </tr>`).join('')||'<tr><td colspan="4" class="lc">No awards</td></tr>';
+}
+
+function editScholarship(id,nm,tp,amt){
+  document.getElementById('sch-id').value=id;
+  document.getElementById('sch-modal-title').textContent='Edit Scholarship';
+  document.getElementById('sch-nm').value=nm;
+  document.getElementById('sch-tp').value=tp;
+  document.getElementById('sch-amt').value=amt;
+  openModal('modal-scholarship');
+}
+
+async function saveScholarship(){
+  const id=document.getElementById('sch-id').value;
+  const body={scholarship_name:document.getElementById('sch-nm').value,scholarship_type:document.getElementById('sch-tp').value,max_amount:document.getElementById('sch-amt').value};
+  const r=await api(API+(id?'/scholarships/'+id:'/scholarships'),id?'PUT':'POST',body);
+  if(r?.message){showMsg('sch-msg',r.message,'success');loadScholarships();}
+  else showMsg('sch-msg',r?.error||'Error','error');
+}
+
+async function delScholarship(id){
+  if(!confirm('Delete scholarship?'))return;
+  await api(API+'/scholarships/'+id,'DELETE');
+  loadScholarships();
+}
+
+async function saveAward(){
+  const body={student_id:document.getElementById('aw-stu').value,scholarship_id:document.getElementById('aw-sch').value,amount_awarded:document.getElementById('aw-amt').value};
+  const r=await api(API+'/student-scholarships','POST',body);
+  if(r?.message){showMsg('aw-msg',r.message,'success');loadStudentScholarships();}
+  else showMsg('aw-msg',r?.error||'Error','error');
+}
+
+// ── USERS ──
+async function loadUsers(){
+  const d=await api(API+'/users');
+  if(!d)return;
+  document.getElementById('tb-usr').innerHTML=d.map(r=>`<tr>
+    <td class="mono">${r.USERNAME}</td>
+    <td><span class="tag ${r.ROLE==='admin'?'tag-navy':'tag-blue'}">${r.ROLE}</span></td>
+    <td>${r.FULL_NAME||'—'}</td>
+    <td><span class="tag ${r.IS_ACTIVE==='Y'?'tag-green':'tag-red'}">${r.IS_ACTIVE==='Y'?'Active':'Inactive'}</span></td>
+    <td><button class="btn-sm btn-edit" onclick="toggleUser(${r.USER_ID})">${r.IS_ACTIVE==='Y'?'Deactivate':'Activate'}</button></td>
+  </tr>`).join('')||'<tr><td colspan="5" class="lc">No users</td></tr>';
+}
+
+async function saveUser(){
+  const body={username:document.getElementById('usr-un').value,password:document.getElementById('usr-pw').value,role:document.getElementById('usr-role').value,student_id:document.getElementById('usr-stu').value||null};
+  const r=await api(API+'/users','POST',body);
+  if(r?.message){showMsg('usr-msg',r.message,'success');loadUsers();}
+  else showMsg('usr-msg',r?.error||'Error','error');
+}
+
+async function toggleUser(id){
+  await api(API+'/users/'+id+'/toggle','PUT');
+  loadUsers();
+}
+
+// ── LOOKUPS ──
+async function loadLookups(){
+  [colleges,courses]=await Promise.all([api(API+'/colleges'),api(API+'/courses')]);
+  const subj=await api(API+'/subjects');
+  subjects=subj||[];
+
+  const sc=document.getElementById('stu-col');
+  sc.innerHTML='<option value="">Select college</option>'+(colleges||[]).map(c=>`<option value="${c.COLLEGE_ID}">${c.COLLEGE_CODE} — ${c.COLLEGE_NAME}</option>`).join('');
+  sc.onchange=function(){
+    const filt=(courses||[]).filter(c=>String(c.COLLEGE_NAME)===this.options[this.selectedIndex]?.text?.split(' — ')[1]);
+    document.getElementById('stu-crs').innerHTML='<option value="">Select course</option>'+filt.map(c=>`<option value="${c.COURSE_ID}">${c.COURSE_CODE}</option>`).join('');
+  };
+  document.getElementById('stu-crs').innerHTML='<option value="">Select course</option>'+(courses||[]).map(c=>`<option value="${c.COURSE_ID}">${c.COURSE_CODE}</option>`).join('');
+  document.getElementById('sec-sub').innerHTML='<option value="">Select subject</option>'+subjects.map(s=>`<option value="${s.SUBJECT_ID}">${s.SUBJECT_CODE} — ${s.SUBJECT_NAME}</option>`).join('');
+
+  const allStu=await api(API+'/students');
+  const stuSel=document.getElementById('aw-stu');
+  stuSel.innerHTML='<option value="">Select student</option>'+(allStu||[]).map(s=>`<option value="${s.STUDENT_ID}">${s.STUDENT_NO} — ${s.LASTNAME}, ${s.FIRSTNAME}</option>`).join('');
+  const usrStu=document.getElementById('usr-stu');
+  usrStu.innerHTML='<option value="">None (admin)</option>'+(allStu||[]).map(s=>`<option value="${s.STUDENT_ID}">${s.STUDENT_NO} — ${s.LASTNAME}, ${s.FIRSTNAME}</option>`).join('');
+}
+
+// ── INIT ──
+const user=JSON.parse(localStorage.getItem('user')||'{}');
+if(!token||user.role!=='admin'){window.location.href='/'}
+document.getElementById('admin-name').textContent=user.full_name||'Admin';
+
+loadDashboard();loadStudents();loadSections();loadEnrollments();
+loadAssessments();loadPayments();loadScholarships();loadStudentScholarships();
+loadUsers();loadLookups();
+
+// Reset modal student id on open
+document.getElementById('modal-student').addEventListener('click',function(e){
+  if(e.target===this){closeModal('modal-student')}
+});
+['modal-section','modal-payment','modal-scholarship','modal-award','modal-user','modal-subjects'].forEach(id=>{
+  document.getElementById(id).addEventListener('click',function(e){if(e.target===this)closeModal(id)});
+});
+document.querySelectorAll('.modal-overlay').forEach(m=>{
+  m.querySelector('.modal')?.addEventListener('click',e=>e.stopPropagation());
+});
+</script>
+</body>
+</html>

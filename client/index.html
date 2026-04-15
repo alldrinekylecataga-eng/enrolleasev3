@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EnrollEase — Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f0f2f5; --surface: #fff; --border: #dde1e7;
+    --text: #0f1217; --muted: #6b7280; --subtle: #9ca3af;
+    --blue: #1d4ed8; --blue-md: #3b82f6; --blue-lt: #dbeafe;
+    --navy: #1e2a3b; --red: #b91c1c; --red-lt: #fee2e2;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+  .wrap { width: 100%; max-width: 400px; padding: 20px; }
+  .logo-area { text-align: center; margin-bottom: 32px; }
+  .logo-icon { width: 48px; height: 48px; background: var(--navy); border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 20px; font-weight: 700; color: #fff; margin-bottom: 12px; }
+  .logo-name { font-size: 22px; font-weight: 600; color: var(--text); }
+  .logo-sub  { font-size: 12px; color: var(--muted); margin-top: 3px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 28px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+  .card h2 { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+  .card p  { font-size: 12px; color: var(--muted); margin-bottom: 24px; }
+  .field { margin-bottom: 16px; }
+  label { display: block; font-size: 12px; font-weight: 500; margin-bottom: 5px; color: var(--text); }
+  input { width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 7px; font-size: 13px; font-family: 'Inter', sans-serif; color: var(--text); background: #fff; outline: none; transition: border 0.15s, box-shadow 0.15s; }
+  input:focus { border-color: var(--blue-md); box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+  .btn { width: 100%; padding: 10px; background: var(--navy); color: #fff; border: none; border-radius: 7px; font-size: 13px; font-weight: 500; font-family: 'Inter', sans-serif; cursor: pointer; transition: background 0.15s; margin-top: 8px; }
+  .btn:hover { background: #253347; }
+  .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+  .error { background: var(--red-lt); border: 1px solid #fecaca; color: var(--red); border-radius: 6px; padding: 9px 12px; font-size: 12px; margin-bottom: 16px; display: none; }
+  .hint { text-align: center; margin-top: 16px; font-size: 11px; color: var(--subtle); background: var(--bg); border-radius: 6px; padding: 10px; }
+  .hint strong { color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="logo-area">
+    <div class="logo-icon">E</div>
+    <div class="logo-name">EnrollEase</div>
+    <div class="logo-sub">University Enrollment & Payment System</div>
+  </div>
+  <div class="card">
+    <h2>Sign in to your account</h2>
+    <p>Enter your credentials to continue</p>
+    <div class="error" id="err"></div>
+    <div class="field">
+      <label>Username</label>
+      <input type="text" id="username" placeholder="e.g. admin or 2021-0001" autocomplete="username">
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password">
+    </div>
+    <button class="btn" id="btn" onclick="login()">Sign in</button>
+  </div>
+  <div class="hint">
+    <strong>Demo accounts:</strong><br>
+    Admin → admin / admin123 &nbsp;|&nbsp; Student → 2021-0001 / student123
+  </div>
+</div>
+<script>
+async function login() {
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value;
+  const btn = document.getElementById('btn');
+  const err = document.getElementById('err');
+  err.style.display = 'none';
+  if (!username || !password) { showErr('Please enter username and password'); return; }
+  btn.disabled = true; btn.textContent = 'Signing in…';
+  try {
+    const r = await fetch('/api/auth/login', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
+    });
+    const data = await r.json();
+    if (!r.ok) { showErr(data.error || 'Login failed'); return; }
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('role', data.role);
+    localStorage.setItem('user', JSON.stringify(data));
+    window.location.href = data.role === 'admin' ? '/admin.html' : '/student.html';
+  } catch { showErr('Cannot connect to server. Make sure the server is running.'); }
+  finally { btn.disabled = false; btn.textContent = 'Sign in'; }
+}
+function showErr(msg) {
+  const e = document.getElementById('err');
+  e.textContent = msg; e.style.display = 'block';
+}
+document.addEventListener('keypress', e => { if (e.key === 'Enter') login(); });
+</script>
+</body>
+</html>

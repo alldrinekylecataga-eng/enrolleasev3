@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>EnrollEase — Student Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f0f2f5;--surface:#fff;--surface2:#f7f8fa;--border:#dde1e7;--border2:#c8cdd6;--text:#0f1217;--text2:#3d4451;--muted:#6b7280;--subtle:#9ca3af;--blue:#1d4ed8;--blue-lt:#dbeafe;--blue-md:#3b82f6;--green:#15803d;--green-lt:#dcfce7;--green-md:#22c55e;--red:#b91c1c;--red-lt:#fee2e2;--red-md:#ef4444;--amber:#b45309;--amber-lt:#fef3c7;--amber-md:#f59e0b;--navy:#1e2a3b;--navy2:#253347}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-size:13px;line-height:1.5}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:220px;flex-shrink:0;background:var(--navy);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;box-shadow:2px 0 8px rgba(0,0,0,.12)}
+.sidebar-top{padding:22px 18px 18px;border-bottom:1px solid rgba(255,255,255,.08)}
+.logo-wrap{display:flex;align-items:center;gap:10px}
+.logo-icon{width:32px;height:32px;background:var(--blue-md);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#fff;flex-shrink:0}
+.logo-text{font-size:15px;font-weight:600;color:#fff}
+.logo-sub{font-size:10px;color:rgba(255,255,255,.35);margin-top:1px}
+.nav{padding:10px;flex:1;overflow-y:auto}
+.nav-group{font-size:9.5px;font-weight:600;color:rgba(255,255,255,.28);text-transform:uppercase;letter-spacing:.1em;padding:14px 8px 5px}
+.nav-item{display:flex;align-items:center;gap:9px;padding:7px 8px;border-radius:6px;font-size:12.5px;color:rgba(255,255,255,.52);cursor:pointer;text-decoration:none;transition:background .12s,color .12s;user-select:none}
+.nav-item:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.82)}
+.nav-item.active{background:rgba(59,130,246,.22);color:#fff;font-weight:500}
+.nav-dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.18);flex-shrink:0}
+.nav-item.active .nav-dot{background:var(--blue-md)}
+.sidebar-foot{padding:14px 18px;border-top:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:space-between}
+.user-info{font-size:11px;color:rgba(255,255,255,.5)}
+.logout-btn{font-size:11px;color:rgba(255,255,255,.4);cursor:pointer;background:none;border:none;font-family:'Inter',sans-serif}
+.logout-btn:hover{color:#fff}
+.main{margin-left:220px;flex:1;display:flex;flex-direction:column}
+.header{padding:0 28px;height:54px;border-bottom:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.header-left{display:flex;align-items:center;gap:10px}
+.header-left h1{font-size:14px;font-weight:600}
+.hdiv{width:1px;height:20px;background:var(--border)}
+.header-left p{font-size:11px;color:var(--muted)}
+.sem-pill{font-size:11px;color:var(--green);background:var(--green-lt);border:1px solid #bbf7d0;border-radius:20px;padding:2px 10px;font-weight:500}
+.content{padding:24px 28px;flex:1}
+.page{display:none}.page.active{display:block}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.card-head{padding:13px 18px;background:var(--surface2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px}
+.card-title{font-size:12.5px;font-weight:600}
+.card-body{padding:20px}
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{padding:9px 14px;text-align:left;font-size:10.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--border);background:var(--surface2);white-space:nowrap}
+.tbl td{padding:9px 14px;border-bottom:1px solid #eef0f3;color:var(--text2);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tbody tr:hover td{background:#f5f7fb}
+.mono{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--text)}
+.tag{display:inline-block;font-size:10.5px;font-weight:500;padding:2px 8px;border-radius:4px;border:1px solid transparent;white-space:nowrap}
+.tag-blue{color:var(--blue);background:var(--blue-lt);border-color:#bfdbfe}
+.tag-green{color:var(--green);background:var(--green-lt);border-color:#bbf7d0}
+.tag-red{color:var(--red);background:var(--red-lt);border-color:#fecaca}
+.tag-amber{color:var(--amber);background:var(--amber-lt);border-color:#fde68a}
+.tag-gray{color:var(--muted);background:#f1f3f5;border-color:var(--border)}
+.tag-navy{color:#fff;background:var(--navy);border-color:var(--navy)}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.stat-label{font-size:11px;color:var(--muted);font-weight:500;margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em}
+.stat-val{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:500}
+.stat-sub{font-size:11px;color:var(--subtle);margin-top:4px}
+.stat.blue{border-left:3px solid var(--blue-md)}.stat.blue .stat-val{color:var(--blue)}
+.stat.green{border-left:3px solid var(--green-md)}.stat.green .stat-val{color:var(--green)}
+.stat.red{border-left:3px solid var(--red-md)}.stat.red .stat-val{color:var(--red)}
+.btn-primary{background:var(--navy);color:#fff;border:none;border-radius:6px;padding:7px 16px;font-size:12px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;transition:background .15s}
+.btn-primary:hover{background:var(--navy2)}
+.btn-sm{padding:4px 10px;font-size:11px;border-radius:5px;border:none;cursor:pointer;font-family:'Inter',sans-serif;font-weight:500;transition:background .15s}
+.btn-enlist{background:var(--blue-lt);color:var(--blue)}.btn-enlist:hover{background:#bfdbfe}
+.btn-drop{background:var(--red-lt);color:var(--red)}.btn-drop:hover{background:#fecaca}
+.search{background:var(--surface);border:1px solid var(--border2);border-radius:6px;padding:5px 10px;font-size:12px;color:var(--text);outline:none;font-family:'Inter',sans-serif;width:180px;transition:border .15s}
+.search:focus{border-color:var(--blue-md);box-shadow:0 0 0 3px rgba(59,130,246,.1)}
+.search::placeholder{color:var(--subtle)}
+.profile-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.pfield{padding:12px;background:var(--surface2);border-radius:8px;border:1px solid var(--border)}
+.pfield-label{font-size:10px;font-weight:600;color:var(--subtle);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.pfield-val{font-size:13px;font-weight:500;color:var(--text)}
+.pay-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.pay-box{padding:14px;background:var(--surface2);border-radius:8px;border:1px solid var(--border)}
+.pay-box-label{font-size:10px;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px}
+.pay-box-val{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:500}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;display:none;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border-radius:12px;padding:24px;width:420px;max-width:95vw;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.modal h3{font-size:15px;font-weight:600;margin-bottom:4px}
+.modal p{font-size:12px;color:var(--muted);margin-bottom:20px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12px;font-weight:500;margin-bottom:4px}
+.field input,.field select{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;font-family:'Inter',sans-serif;color:var(--text);outline:none}
+.field input:focus,.field select:focus{border-color:var(--blue-md);box-shadow:0 0 0 3px rgba(59,130,246,.1)}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:20px}
+.btn-cancel{background:var(--bg);color:var(--muted);border:1px solid var(--border);border-radius:6px;padding:7px 16px;font-size:12px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif}
+.msg{padding:10px 12px;border-radius:6px;font-size:12px;margin-bottom:14px;display:none}
+.msg.success{background:var(--green-lt);color:var(--green);border:1px solid #bbf7d0}
+.msg.error{background:var(--red-lt);color:var(--red);border:1px solid #fecaca}
+.lc{color:var(--subtle);text-align:center;padding:24px;font-size:12px}
+.notice{background:var(--blue-lt);border:1px solid #bfdbfe;color:var(--blue);border-radius:8px;padding:12px 16px;font-size:12px;margin-bottom:16px}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar">
+  <div class="sidebar-top">
+    <div class="logo-wrap">
+      <div class="logo-icon">E</div>
+      <div><div class="logo-text">EnrollEase</div><div class="logo-sub">Student Portal</div></div>
+    </div>
+  </div>
+  <nav class="nav">
+    <div class="nav-group">My Account</div>
+    <a class="nav-item active" href="#" onclick="go('home',this)"><span class="nav-dot"></span>My Dashboard</a>
+    <a class="nav-item" href="#" onclick="go('profile',this)"><span class="nav-dot"></span>My Profile</a>
+    <div class="nav-group">Enrollment</div>
+    <a class="nav-item" href="#" onclick="go('enroll',this)"><span class="nav-dot"></span>Enroll / Add Subjects</a>
+    <a class="nav-item" href="#" onclick="go('my-subjects',this)"><span class="nav-dot"></span>My Subjects</a>
+    <div class="nav-group">Payments</div>
+    <a class="nav-item" href="#" onclick="go('payment',this)"><span class="nav-dot"></span>My Balance</a>
+    <a class="nav-item" href="#" onclick="go('pay-history',this)"><span class="nav-dot"></span>Payment History</a>
+    <div class="nav-group">Settings</div>
+    <a class="nav-item" href="#" onclick="go('settings',this)"><span class="nav-dot"></span>Change Password</a>
+  </nav>
+  <div class="sidebar-foot">
+    <span class="user-info" id="stu-name">Student</span>
+    <button class="logout-btn" onclick="logout()">Sign out</button>
+  </div>
+</aside>
+
+<div class="main">
+  <header class="header">
+    <div class="header-left">
+      <h1 id="hdr-title">My Dashboard</h1>
+      <div class="hdiv"></div>
+      <p id="hdr-sub">Welcome back</p>
+    </div>
+    <span class="sem-pill">1st Semester 2024–2025</span>
+  </header>
+  <div class="content">
+
+    <!-- HOME -->
+    <div class="page active" id="page-home">
+      <div class="stats">
+        <div class="stat blue"><div class="stat-label">Enrolled Subjects</div><div class="stat-val" id="h-subj">—</div><div class="stat-sub">This semester</div></div>
+        <div class="stat green"><div class="stat-label">Total Units</div><div class="stat-val" id="h-units">—</div><div class="stat-sub">This semester</div></div>
+        <div class="stat red"><div class="stat-label">Balance Due</div><div class="stat-val" id="h-bal">—</div><div class="stat-sub">Tuition balance</div></div>
+      </div>
+      <div class="two-col">
+        <div class="card">
+          <div class="card-head"><span class="card-title">My Enrolled Subjects</span></div>
+          <table class="tbl"><thead><tr><th>Code</th><th>Subject</th><th>Units</th><th>Section</th><th>Schedule</th></tr></thead>
+          <tbody id="h-subj-tbl"><tr><td colspan="5" class="lc">Loading…</td></tr></tbody></table>
+        </div>
+        <div class="card">
+          <div class="card-head"><span class="card-title">Recent Payments</span></div>
+          <table class="tbl"><thead><tr><th>Receipt</th><th>Date</th><th>Amount</th><th>Mode</th></tr></thead>
+          <tbody id="h-pay-tbl"><tr><td colspan="4" class="lc">Loading…</td></tr></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROFILE -->
+    <div class="page" id="page-profile">
+      <div class="card">
+        <div class="card-head"><span class="card-title">My Profile</span></div>
+        <div class="card-body">
+          <div class="profile-grid" id="profile-grid"><div class="lc">Loading…</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ENROLL -->
+    <div class="page" id="page-enroll">
+      <div class="notice" id="enroll-notice">Loading enrollment status…</div>
+      <div class="card">
+        <div class="card-head">
+          <span class="card-title">Available Sections</span>
+          <input class="search" placeholder="Search subject…" oninput="filt('tb-avail',this.value)">
+        </div>
+        <table class="tbl">
+          <thead><tr><th>Section</th><th>Subject</th><th>Units</th><th>Faculty</th><th>Schedule</th><th>Room</th><th>Slots</th><th></th></tr></thead>
+          <tbody id="tb-avail"><tr><td colspan="8" class="lc">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- MY SUBJECTS -->
+    <div class="page" id="page-my-subjects">
+      <div class="card">
+        <div class="card-head"><span class="card-title">My Enrolled Subjects</span></div>
+        <table class="tbl">
+          <thead><tr><th>Code</th><th>Subject</th><th>Units</th><th>Section</th><th>Faculty</th><th>Schedule</th><th>Room</th><th></th></tr></thead>
+          <tbody id="tb-mysub"><tr><td colspan="8" class="lc">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PAYMENT -->
+    <div class="page" id="page-payment">
+      <div class="pay-summary">
+        <div class="pay-box"><div class="pay-box-label">Total Due</div><div class="pay-box-val" id="p-due">—</div></div>
+        <div class="pay-box"><div class="pay-box-label">Scholarship</div><div class="pay-box-val" id="p-sch" style="color:var(--green)">—</div></div>
+        <div class="pay-box"><div class="pay-box-label">Total Paid</div><div class="pay-box-val" id="p-paid" style="color:var(--blue)">—</div></div>
+        <div class="pay-box"><div class="pay-box-label">Balance Due</div><div class="pay-box-val" id="p-bal" style="color:var(--red)">—</div></div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <span class="card-title">Make a Payment</span>
+        </div>
+        <div class="card-body">
+          <div class="msg" id="pay-msg"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;align-items:end">
+            <div class="field" style="margin:0"><label>Amount (₱)</label><input id="pay-amt" type="number" placeholder="0.00"></div>
+            <div class="field" style="margin:0"><label>Payment Mode</label>
+              <select id="pay-mode">
+                <option value="Cash">Cash</option>
+                <option value="GCash">GCash</option>
+                <option value="Bank Transfer">Bank Transfer</option>
+                <option value="Maya">Maya</option>
+              </select>
+            </div>
+            <button class="btn-primary" onclick="makePayment()">Submit Payment</button>
+          </div>
+          <p style="font-size:11px;color:var(--subtle);margin-top:10px">A receipt number will be automatically generated upon successful payment.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAYMENT HISTORY -->
+    <div class="page" id="page-pay-history">
+      <div class="card">
+        <div class="card-head"><span class="card-title">Payment History</span></div>
+        <table class="tbl">
+          <thead><tr><th>Receipt No.</th><th>Date</th><th>Amount</th><th>Mode</th></tr></thead>
+          <tbody id="tb-hist"><tr><td colspan="4" class="lc">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="page" id="page-settings">
+      <div class="card" style="max-width:420px">
+        <div class="card-head"><span class="card-title">Change Password</span></div>
+        <div class="card-body">
+          <div class="msg" id="pw-msg"></div>
+          <div class="field"><label>Current Password</label><input id="pw-old" type="password" placeholder="Enter current password"></div>
+          <div class="field"><label>New Password</label><input id="pw-new" type="password" placeholder="Enter new password"></div>
+          <div class="field"><label>Confirm New Password</label><input id="pw-conf" type="password" placeholder="Confirm new password"></div>
+          <button class="btn-primary" onclick="changePassword()">Update Password</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<!-- Enroll confirmation modal -->
+<div class="modal-overlay" id="modal-enlist">
+  <div class="modal">
+    <h3>Confirm Enlistment</h3>
+    <p id="enlist-detail">Add this section to your enrollment?</p>
+    <div class="msg" id="enlist-msg"></div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('modal-enlist')">Cancel</button>
+      <button class="btn-primary" onclick="confirmEnlist()">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API_STU='/api/student';
+const API_AUTH='/api/auth';
+let token=localStorage.getItem('token');
+let currentSectionId=null;
+
+function hdr(){return{'Authorization':'Bearer '+token,'Content-Type':'application/json'}}
+async function api(url,method='GET',body=null){
+  const r=await fetch(url,{method,headers:hdr(),body:body?JSON.stringify(body):null});
+  if(r.status===401){logout();return null}
+  return r.json();
+}
+
+function logout(){localStorage.clear();window.location.href='/'}
+function peso(n){return'₱'+Number(n||0).toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function fmtDate(d){return d?new Date(d).toLocaleDateString('en-PH',{year:'numeric',month:'short',day:'numeric'}):'—'}
+function filt(id,q){document.querySelectorAll('#'+id+' tr').forEach(r=>{r.style.display=r.textContent.toLowerCase().includes(q.toLowerCase())?'':'none'})}
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+function openModal(id){document.getElementById(id).classList.add('open')}
+function showMsg(id,msg,type){const e=document.getElementById(id);e.textContent=msg;e.className='msg '+type;e.style.display='block';setTimeout(()=>e.style.display='none',4000)}
+
+const TITLES={home:['My Dashboard','Overview of your enrollment and payments'],profile:['My Profile','Your student information'],enroll:['Enroll / Add Subjects','Browse and enlist in available sections'],['my-subjects']:['My Subjects','Your enlisted subjects this semester'],payment:['My Balance','Tuition fee and payment'],['pay-history']:['Payment History','Your payment transactions'],settings:['Settings','Account settings']};
+function go(name,el){
+  event.preventDefault();
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  el.classList.add('active');
+  const[t,s]=TITLES[name]||[name,''];
+  document.getElementById('hdr-title').textContent=t;
+  document.getElementById('hdr-sub').textContent=s;
+}
+
+async function loadHome(){
+  const[subj,pay]=await Promise.all([api(API_STU+'/enrolled-subjects'),api(API_STU+'/payment-history')]);
+  if(subj){
+    document.getElementById('h-subj').textContent=subj.length;
+    const units=subj.reduce((a,s)=>a+(s.UNITS||0),0);
+    document.getElementById('h-units').textContent=units;
+    document.getElementById('h-subj-tbl').innerHTML=subj.length
+      ?subj.map(r=>`<tr><td class="mono">${r.SUBJECT_CODE}</td><td>${r.SUBJECT_NAME}</td><td class="mono">${r.UNITS}</td><td class="mono">${r.SECTION_CODE}</td><td>${r.SCHEDULE||'—'}</td></tr>`).join('')
+      :'<tr><td colspan="5" style="color:var(--subtle);text-align:center;padding:20px">No subjects enlisted yet</td></tr>';
+  }
+  const payment=await api(API_STU+'/payment');
+  if(payment) document.getElementById('h-bal').textContent=peso(payment.BALANCE_DUE);
+  if(pay){
+    document.getElementById('h-pay-tbl').innerHTML=pay.slice(0,5).map(r=>`<tr><td class="mono" style="font-size:10px">${r.RECEIPT_NUMBER}</td><td class="mono">${fmtDate(r.PAYMENT_DATE)}</td><td class="mono" style="color:var(--green)">${peso(r.AMOUNT)}</td><td><span class="tag tag-blue">${r.PAYMENT_MODE}</span></td></tr>`).join('')||'<tr><td colspan="4" style="color:var(--subtle);text-align:center;padding:20px">No payments yet</td></tr>';
+  }
+}
+
+async function loadProfile(){
+  const d=await api(API_STU+'/profile');
+  if(!d)return;
+  const fields=[['Student No.',d.STUDENT_NO],['Last Name',d.LASTNAME],['First Name',d.FIRSTNAME],['Middle Name',d.MIDDLENAME||'—'],['Email',d.EMAIL],['Contact No.',d.CONTACT_NO||'—'],['College',d.COLLEGE_NAME],['Course',d.COURSE_NAME],['Year Level','Year '+d.YEAR_LEVEL],['Status',d.STATUS]];
+  document.getElementById('profile-grid').innerHTML=fields.map(([l,v])=>`<div class="pfield"><div class="pfield-label">${l}</div><div class="pfield-val">${v}</div></div>`).join('');
+}
+
+async function loadEnrollPage(){
+  const enr=await api(API_STU+'/enrollment');
+  const notice=document.getElementById('enroll-notice');
+  if(enr){
+    notice.innerHTML=`<strong>Enrollment active.</strong> You are enrolled for 1st Semester 2024–2025. Enlistment ID: <span class="mono">${enr.ENROLLMENT_ID}</span> · Total units: <strong>${enr.TOTAL_UNITS}</strong>`;
+  } else {
+    notice.innerHTML='<strong>Not yet enrolled.</strong> Click "Enroll" on any subject below to start your enrollment for this semester.';
+  }
+  const d=await api(API_STU+'/available-sections');
+  if(!d)return;
+  document.getElementById('tb-avail').innerHTML=d.length
+    ?d.map(r=>`<tr>
+        <td class="mono">${r.SECTION_CODE}</td>
+        <td>${r.SUBJECT_NAME}</td>
+        <td class="mono">${r.UNITS}</td>
+        <td>${r.FACULTY_NAME||'TBA'}</td>
+        <td>${r.SCHEDULE||'TBA'}</td>
+        <td>${r.ROOM||'TBA'}</td>
+        <td><span class="tag ${r.SLOTS_AVAILABLE>5?'tag-green':r.SLOTS_AVAILABLE>0?'tag-amber':'tag-red'}">${r.SLOTS_AVAILABLE} open</span></td>
+        <td><button class="btn-sm btn-enlist" onclick="enlistSection(${r.SECTION_ID},'${r.SECTION_CODE} — ${r.SUBJECT_NAME}')">Enlist</button></td>
+      </tr>`).join('')
+    :'<tr><td colspan="8" class="lc">No available sections</td></tr>';
+}
+
+function enlistSection(id,name){
+  currentSectionId=id;
+  document.getElementById('enlist-detail').textContent=`Enlist in: ${name}?`;
+  openModal('modal-enlist');
+}
+
+async function confirmEnlist(){
+  // First ensure enrollment exists
+  const enrR=await api(API_STU+'/enroll','POST',{});
+  if(!enrR)return;
+  const r=await api(API_STU+'/add-subject','POST',{section_id:currentSectionId});
+  if(r?.message){showMsg('enlist-msg',r.message,'success');setTimeout(()=>{closeModal('modal-enlist');loadEnrollPage();loadHome();loadMySubjects();loadPayment();},1500);}
+  else showMsg('enlist-msg',r?.error||'Error','error');
+}
+
+async function loadMySubjects(){
+  const d=await api(API_STU+'/enrolled-subjects');
+  if(!d)return;
+  document.getElementById('tb-mysub').innerHTML=d.length
+    ?d.map(r=>`<tr>
+        <td class="mono">${r.SUBJECT_CODE}</td><td>${r.SUBJECT_NAME}</td>
+        <td class="mono">${r.UNITS}</td><td class="mono">${r.SECTION_CODE}</td>
+        <td>${r.FACULTY_NAME||'—'}</td><td>${r.SCHEDULE||'—'}</td><td>${r.ROOM||'—'}</td>
+        <td><button class="btn-sm btn-drop" onclick="dropSubject(${r.ENROLL_SUBJECT_ID},'${r.SUBJECT_NAME}')">Drop</button></td>
+      </tr>`).join('')
+    :'<tr><td colspan="8" class="lc">No subjects enlisted</td></tr>';
+}
+
+async function dropSubject(id,name){
+  if(!confirm(`Drop ${name}?`))return;
+  const r=await api(API_STU+'/drop-subject/'+id,'DELETE');
+  if(r?.message){loadMySubjects();loadHome();loadPayment();}
+  else alert(r?.error||'Error');
+}
+
+async function loadPayment(){
+  const d=await api(API_STU+'/payment');
+  if(!d){
+    ['p-due','p-sch','p-paid','p-bal'].forEach(id=>document.getElementById(id).textContent='₱0.00');
+    return;
+  }
+  document.getElementById('p-due').textContent=peso(d.TOTAL_AMOUNT_DUE);
+  document.getElementById('p-sch').textContent=peso(d.SCHOLARSHIP_DEDUCTION);
+  document.getElementById('p-paid').textContent=peso(d.TOTAL_PAID);
+  document.getElementById('p-bal').textContent=peso(d.BALANCE_DUE);
+}
+
+async function makePayment(){
+  const amount=parseFloat(document.getElementById('pay-amt').value);
+  const mode=document.getElementById('pay-mode').value;
+  if(!amount||amount<=0){showMsg('pay-msg','Please enter a valid amount','error');return;}
+  const r=await api(API_STU+'/pay','POST',{amount,payment_mode:mode});
+  if(r?.message){showMsg('pay-msg',`${r.message} — Receipt: ${r.receipt_number}`,'success');document.getElementById('pay-amt').value='';loadPayment();loadPaymentHistory();loadHome();}
+  else showMsg('pay-msg',r?.error||'Error','error');
+}
+
+async function loadPaymentHistory(){
+  const d=await api(API_STU+'/payment-history');
+  if(!d)return;
+  document.getElementById('tb-hist').innerHTML=d.length
+    ?d.map(r=>`<tr><td class="mono" style="font-size:11px">${r.RECEIPT_NUMBER}</td><td class="mono">${fmtDate(r.PAYMENT_DATE)}</td><td class="mono" style="color:var(--green);font-weight:600">${peso(r.AMOUNT)}</td><td><span class="tag tag-blue">${r.PAYMENT_MODE}</span></td></tr>`).join('')
+    :'<tr><td colspan="4" class="lc">No payment history</td></tr>';
+}
+
+async function changePassword(){
+  const old_password=document.getElementById('pw-old').value;
+  const new_password=document.getElementById('pw-new').value;
+  const conf=document.getElementById('pw-conf').value;
+  if(new_password!==conf){showMsg('pw-msg','New passwords do not match','error');return;}
+  if(new_password.length<6){showMsg('pw-msg','Password must be at least 6 characters','error');return;}
+  const user=JSON.parse(localStorage.getItem('user')||'{}');
+  const r=await fetch(API_AUTH+'/change-password',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:user.user_id,old_password,new_password})});
+  const data=await r.json();
+  if(data.message)showMsg('pw-msg',data.message,'success');
+  else showMsg('pw-msg',data.error||'Error','error');
+}
+
+// ── INIT ──
+const user=JSON.parse(localStorage.getItem('user')||'{}');
+if(!token||user.role!=='student'){window.location.href='/'}
+document.getElementById('stu-name').textContent=user.full_name||user.username;
+
+loadHome();loadProfile();loadEnrollPage();loadMySubjects();loadPayment();loadPaymentHistory();
+
+document.getElementById('modal-enlist').addEventListener('click',function(e){if(e.target===this)closeModal('modal-enlist')});
+</script>
+</body>
+</html>
