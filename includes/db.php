@@ -2,11 +2,11 @@
 // includes/db.php
 // MySQL connection using PDO
 
-define('DB_HOST', 'mysql-3eaabec2-alldrinekylecataga-dbb3.h.aivencloud.com');
-define('DB_NAME', 'defaultdb');
-define('DB_USER', 'avnadmin');
-define('DB_PASS', 'AVNS_fg5MKGf-tYlZg0gM9Nq');
-define('DB_PORT', '25403');
+define('DB_HOST', 'sql12.freesqldatabase.com');
+define('DB_NAME', 'sql12824103');
+define('DB_USER', 'sql12824103');
+define('DB_PASS', 'yvXQW9FJ1D');
+define('DB_PORT', '3306');
 
 function getDB() {
     static $pdo = null;
